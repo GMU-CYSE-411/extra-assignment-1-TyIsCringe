@@ -1,3 +1,28 @@
+(function createAdminTableHelpers() {
+  function createCell(value) {
+    const cell = document.createElement("td");
+    cell.textContent = String(value);
+    return cell;
+  }
+
+  window.renderAdminUsers = function renderAdminUsers(users) {
+    const tbody = document.getElementById("admin-users");
+    const rows = users.map((entry) => {
+      const row = document.createElement("tr");
+      row.append(
+        createCell(entry.id),
+        createCell(entry.username),
+        createCell(entry.role),
+        createCell(entry.displayName),
+        createCell(entry.noteCount)
+      );
+      return row;
+    });
+
+    tbody.replaceChildren(...rows);
+  };
+})();
+
 (async function bootstrapAdmin() {
   try {
     const user = await loadCurrentUser();
@@ -15,19 +40,7 @@
     }
 
     const result = await api("/api/admin/users");
-    document.getElementById("admin-users").innerHTML = result.users
-      .map(
-        (entry) => `
-          <tr>
-            <td>${entry.id}</td>
-            <td>${entry.username}</td>
-            <td>${entry.role}</td>
-            <td>${entry.displayName}</td>
-            <td>${entry.noteCount}</td>
-          </tr>
-        `
-      )
-      .join("");
+    window.renderAdminUsers(result.users);
   } catch (error) {
     document.getElementById("admin-warning").textContent = error.message;
   }

@@ -1,19 +1,23 @@
-async function loadSettings(userId) {
-  const result = await api(`/api/settings?userId=${encodeURIComponent(userId)}`);
+async function loadSettings() {
+  const result = await api("/api/settings");
   const settings = result.settings;
-
-  document.getElementById("settings-form-user-id").value = settings.userId;
-  document.getElementById("settings-user-id").value = settings.userId;
 
   const form = document.getElementById("settings-form");
   form.elements.displayName.value = settings.displayName;
   form.elements.theme.value = settings.theme;
   form.elements.statusMessage.value = settings.statusMessage;
   form.elements.emailOptIn.checked = Boolean(settings.emailOptIn);
-  document.getElementById("status-preview").innerHTML = `
-    <p><strong>${settings.displayName}</strong></p>
-    <p>${settings.statusMessage}</p>
-  `;
+
+  const preview = document.getElementById("status-preview");
+  const nameParagraph = document.createElement("p");
+  const nameStrong = document.createElement("strong");
+  nameStrong.textContent = String(settings.displayName || "");
+  nameParagraph.appendChild(nameStrong);
+
+  const messageParagraph = document.createElement("p");
+  messageParagraph.textContent = String(settings.statusMessage || "");
+
+  preview.replaceChildren(nameParagraph, messageParagraph);
 
   writeJson("settings-output", settings);
 }
@@ -27,7 +31,7 @@ async function loadSettings(userId) {
       return;
     }
 
-    await loadSettings(user.id);
+    await loadSettings();
   } catch (error) {
     writeJson("settings-output", { error: error.message });
   }
@@ -35,8 +39,7 @@ async function loadSettings(userId) {
 
 document.getElementById("settings-query-form").addEventListener("submit", async (event) => {
   event.preventDefault();
-  const formData = new FormData(event.currentTarget);
-  await loadSettings(formData.get("userId"));
+  await loadSettings();
 });
 
 document.getElementById("settings-form").addEventListener("submit", async (event) => {
@@ -44,7 +47,6 @@ document.getElementById("settings-form").addEventListener("submit", async (event
 
   const formData = new FormData(event.currentTarget);
   const payload = {
-    userId: formData.get("userId"),
     displayName: formData.get("displayName"),
     theme: formData.get("theme"),
     statusMessage: formData.get("statusMessage"),
@@ -57,15 +59,21 @@ document.getElementById("settings-form").addEventListener("submit", async (event
   });
 
   writeJson("settings-output", result);
-  await loadSettings(payload.userId);
+  await loadSettings();
 });
 
 document.getElementById("enable-email").addEventListener("click", async () => {
-  const result = await api("/api/settings/toggle-email?enabled=1");
+  const result = await api("/api/settings/toggle-email", {
+    method: "POST",
+    body: JSON.stringify({ enabled: true })
+  });
   writeJson("settings-output", result);
 });
 
 document.getElementById("disable-email").addEventListener("click", async () => {
-  const result = await api("/api/settings/toggle-email?enabled=0");
+  const result = await api("/api/settings/toggle-email", {
+    method: "POST",
+    body: JSON.stringify({ enabled: false })
+  });
   writeJson("settings-output", result);
 });

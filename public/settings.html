@@ -20,11 +20,7 @@
         <div>
           <h2>Load Settings</h2>
           <form id="settings-query-form" class="stacked-form compact">
-            <label>
-              User ID
-              <input type="number" name="userId" id="settings-user-id" />
-            </label>
-            <button type="submit">Load</button>
+            <button type="submit">Reload My Settings</button>
           </form>
 
           <div class="preview-card">
@@ -36,10 +32,6 @@
         <div>
           <h2>Update Settings</h2>
           <form id="settings-form" class="stacked-form compact">
-            <label>
-              User ID
-              <input type="number" name="userId" id="settings-form-user-id" />
-            </label>
             <label>
               Display Name
               <input type="text" name="displayName" />
@@ -68,7 +60,7 @@
       <section class="panel">
         <h2>Quick Toggle</h2>
         <p class="muted">
-          This route exists for training and is intentionally unsafe. Read the network call before using it.
+          This control updates your own email preference through a protected state-changing request.
         </p>
         <div class="button-row">
           <button id="enable-email" type="button">Enable Email</button>
